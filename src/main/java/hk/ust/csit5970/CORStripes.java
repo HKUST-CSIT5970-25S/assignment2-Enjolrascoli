@@ -117,7 +117,7 @@ public class CORStripes extends Configured implements Tool {
 				STRIPE.clear();
 				for (int j = i + 1; j < sortedWords.size(); j++) {
 					String v = sortedWords.get(j);
-					STRIPE.put(new Text(w), ONE);
+					STRIPE.put(new Text(v), ONE);
 				}
 				if (!STRIPE.isEmpty()) {
 					context.write(KEY, STRIPE);
