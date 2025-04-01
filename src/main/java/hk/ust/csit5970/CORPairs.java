@@ -113,7 +113,7 @@ public class CORPairs extends Configured implements Tool {
 				sorted_word_set.add(doc_tokenizers.nextToken());
 			}
 
-			List<String> sortedWords = new ArrayList<>(sorted_word_set);
+			List<String> sortedWords = new ArrayList<String>(sorted_word_set);
 			for (int i = 0; i < sortedWords.size(); i++) {
 				String u = sortedWords.get(i);
 				for (int j = i + 1; j < sortedWords.size(); j++) {

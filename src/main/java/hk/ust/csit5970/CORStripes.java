@@ -103,7 +103,7 @@ public class CORStripes extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
-			List<String> sortedWords = new ArrayList<>(sorted_word_set);
+			List<String> sortedWords = new ArrayList<String>(sorted_word_set);
 			for (int i = 0; i < sortedWords.size(); i++) {
 				String u = sortedWords.get(i);
 				KEY.set(u);
