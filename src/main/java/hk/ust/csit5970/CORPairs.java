@@ -43,6 +43,10 @@ public class CORPairs extends Configured implements Tool {
 	 */
 	private static class CORMapper1 extends
 			Mapper<LongWritable, Text, Text, IntWritable> {
+
+		private static final IntWritable COUNT = new IntWritable();
+		private static final Text KEY = new Text();
+
 		@Override
 		public void map(LongWritable key, Text value, Context context)
 				throws IOException, InterruptedException {
@@ -53,6 +57,15 @@ public class CORPairs extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
+			while (doc_tokenizer.hasMoreTokens()) {
+				String word = doc_tokenizer.nextToken();
+				word_set.put(word, word_set.getOrDefault(word, 0) + 1);
+			}
+			for (Map.Entry<String, Integer> entry : word_set.entrySet()) {
+				COUNT.set(entry.getValue());
+				KEY.set(entry.getKey());
+				context.write(KEY, COUNT);
+			}
 		}
 	}
 
@@ -61,11 +74,21 @@ public class CORPairs extends Configured implements Tool {
 	 */
 	private static class CORReducer1 extends
 			Reducer<Text, IntWritable, Text, IntWritable> {
+
+		private final static IntWritable SUM = new IntWritable();
+
 		@Override
 		public void reduce(Text key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
+			Iterator<IntWritable> iter = values.iterator();
+			int sum = 0;
+			while (iter.hasNext()) {
+				sum += iter.next().get();
+			}
+			SUM.set(sum);
+			context.write(key, SUM);
 		}
 	}
 
@@ -74,6 +97,10 @@ public class CORPairs extends Configured implements Tool {
 	 * TODO: Write your second-pass Mapper here.
 	 */
 	public static class CORPairsMapper2 extends Mapper<LongWritable, Text, PairOfStrings, IntWritable> {
+
+		private static final IntWritable ONE = new IntWritable(1);
+		private static final PairOfStrings PAIR = new PairOfStrings();
+
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			// Please use this tokenizer! DO NOT implement a tokenizer by yourself!
@@ -81,6 +108,20 @@ public class CORPairs extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
+			Set<String> sorted_word_set = new TreeSet<String>();
+			while (doc_tokenizers.hasMoreTokens()) {
+				sorted_word_set.add(doc_tokenizers.nextToken());
+			}
+
+			List<String> sortedWords = new ArrayList<>(sorted_word_set);
+			for (int i = 0; i < sortedWords.size(); i++) {
+				String u = sortedWords.get(i);
+				for (int j = i + 1; j < sortedWords.size(); j++) {
+					String v = sortedWords.get(j);
+					PAIR.set(u, v);
+					context.write(PAIR, ONE);
+				}
+			}
 		}
 	}
 
@@ -88,11 +129,21 @@ public class CORPairs extends Configured implements Tool {
 	 * TODO: Write your second-pass Combiner here.
 	 */
 	private static class CORPairsCombiner2 extends Reducer<PairOfStrings, IntWritable, PairOfStrings, IntWritable> {
+
+		private static final IntWritable SUM = new IntWritable();
+
 		@Override
 		protected void reduce(PairOfStrings key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
+			Iterator<IntWritable> iter = values.iterator();
+			int sum = 0;
+			while (iter.hasNext()) {
+				sum += iter.next().get();
+			}
+			SUM.set(sum);
+			context.write(key, SUM);
 		}
 	}
 
@@ -140,11 +191,22 @@ public class CORPairs extends Configured implements Tool {
 		/*
 		 * TODO: write your second-pass Reducer here.
 		 */
+		private final static IntWritable COR = new IntWritable();
+
 		@Override
 		protected void reduce(PairOfStrings key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
+			Iterator<IntWritable> iter = values.iterator();
+			int sum = 0;
+			while (iter.hasNext()) {
+				sum += iter.next().get();
+			}
+			int freq_a = word_total_map.get(key.getLeftElement());
+			int freq_b = word_total_map.get(key.getRightElement());
+			COR.set(sum / (float) (freq_a * freq_b));
+			context.write(key, COR);
 		}
 	}
 
