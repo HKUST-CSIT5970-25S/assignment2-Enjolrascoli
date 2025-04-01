@@ -198,7 +198,7 @@ public class CORStripes extends Configured implements Tool {
 
 		private final static HashMapStringIntWritable SUM_STRIPES = new HashMapStringIntWritable();
 		private final static PairOfStrings PAIR = new PairOfStrings();
-		private final static FloatWritable COR = new FloatWritable();
+		private final static DoubleWritable COR = new DoubleWritable();
 		/*
 		 * TODO: Write your second-pass Reducer here.
 		 */
@@ -207,7 +207,7 @@ public class CORStripes extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
-			Iterator<HashMapStringIntWritable> iter = values.iterator();
+			Iterator<MapWritable> iter = values.iterator();
 			String first_w = key.toString();
 			while (iter.hasNext()) {
 				SUM_STRIPES.plus(iter.next());
@@ -219,8 +219,8 @@ public class CORStripes extends Configured implements Tool {
 				int freq_a = word_total_map.get(key);
 				int freq_b = word_total_map.get(w);
 				if (freq_b == 0) continue;
-	            PAIR.set(key, w);
-	            COR.set(value / (float) (freq_a * freq_b));
+	            PAIR.set(key.toString(), w);
+	            COR.set(value / (double) (freq_a * freq_b));
 	            context.write(PAIR, COR);
 	        }
 

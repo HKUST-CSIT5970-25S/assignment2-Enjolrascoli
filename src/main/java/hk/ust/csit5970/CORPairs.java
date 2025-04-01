@@ -190,7 +190,7 @@ public class CORPairs extends Configured implements Tool {
 		/*
 		 * TODO: write your second-pass Reducer here.
 		 */
-		private final static FloatWritable COR = new FloatWritable();
+		private final static DoubleWritable COR = new DoubleWritable();
 
 		@Override
 		protected void reduce(PairOfStrings key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {
@@ -204,7 +204,7 @@ public class CORPairs extends Configured implements Tool {
 			}
 			int freq_a = word_total_map.get(key.getLeftElement());
 			int freq_b = word_total_map.get(key.getRightElement());
-			COR.set(sum / (float) (freq_a * freq_b));
+			COR.set(sum / (double) (freq_a * freq_b));
 			context.write(key, COR);
 		}
 	}
