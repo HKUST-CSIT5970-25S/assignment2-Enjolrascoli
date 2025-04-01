@@ -5,10 +5,6 @@ import org.apache.commons.cli.Options;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.io.FloatWritable;
-import org.apache.hadoop.io.IntWritable;
-import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Partitioner;
@@ -19,8 +15,9 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import hk.ust.csit5970.CORPairs.CORPairsMapper2;
+import hk.ust.csit5970.CORPairs.CORPairsReducer2;
+
 import org.apache.hadoop.io.*;
 
 
@@ -29,8 +26,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.*;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Compute the bigram count using "pairs" approach
@@ -59,7 +57,8 @@ public class CORPairs extends Configured implements Tool {
 			 */
 			while (doc_tokenizer.hasMoreTokens()) {
 				String word = doc_tokenizer.nextToken();
-				word_set.put(word, word_set.getOrDefault(word, 0) + 1);
+				int val = word_set.containsKey(key) ? word_set.get(key) : 0; 
+				word_set.put(word, val + 1);
 			}
 			for (Map.Entry<String, Integer> entry : word_set.entrySet()) {
 				COUNT.set(entry.getValue());
@@ -104,7 +103,7 @@ public class CORPairs extends Configured implements Tool {
 		@Override
 		protected void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 			// Please use this tokenizer! DO NOT implement a tokenizer by yourself!
-			StringTokenizer doc_tokenizer = new StringTokenizer(value.toString().replaceAll("[^a-z A-Z]", " "));
+			StringTokenizer doc_tokenizers = new StringTokenizer(value.toString().replaceAll("[^a-z A-Z]", " "));
 			/*
 			 * TODO: Your implementation goes here.
 			 */
@@ -191,7 +190,7 @@ public class CORPairs extends Configured implements Tool {
 		/*
 		 * TODO: write your second-pass Reducer here.
 		 */
-		private final static IntWritable COR = new IntWritable();
+		private final static FloatWritable COR = new FloatWritable();
 
 		@Override
 		protected void reduce(PairOfStrings key, Iterable<IntWritable> values, Context context) throws IOException, InterruptedException {

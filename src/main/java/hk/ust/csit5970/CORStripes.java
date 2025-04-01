@@ -16,11 +16,17 @@ import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
 
+import hk.ust.csit5970.CORStripes.CORStripesCombiner2;
+import hk.ust.csit5970.CORStripes.CORStripesMapper2;
+import hk.ust.csit5970.CORStripes.CORStripesReducer2;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.util.*;
+import java.util.Map.Entry;
+
 
 /**
  * Compute the bigram count using "pairs" approach
@@ -49,7 +55,8 @@ public class CORStripes extends Configured implements Tool {
 			 */
 			while (doc_tokenizer.hasMoreTokens()) {
 				String word = doc_tokenizer.nextToken();
-				word_set.put(word, word_set.getOrDefault(word, 0) + 1);
+				int val = word_set.containsKey(key) ? word_set.get(key) : 0;
+				word_set.put(word, val + 1);
 			}
 			for (Map.Entry<String, Integer> entry : word_set.entrySet()) {
 				COUNT.set(entry.getValue());
@@ -110,7 +117,7 @@ public class CORStripes extends Configured implements Tool {
 				STRIPE.clear();
 				for (int j = i + 1; j < sortedWords.size(); j++) {
 					String v = sortedWords.get(j);
-					STRIPE.put(v, ONE);
+					STRIPE.put(v, 1);
 				}
 				if (!STRIPE.isEmpty()) {
 					context.write(KEY, STRIPE);
@@ -191,7 +198,7 @@ public class CORStripes extends Configured implements Tool {
 
 		private final static HashMapStringIntWritable SUM_STRIPES = new HashMapStringIntWritable();
 		private final static PairOfStrings PAIR = new PairOfStrings();
-		private final static IntWritable COR = new FloatWritable();
+		private final static FloatWritable COR = new FloatWritable();
 		/*
 		 * TODO: Write your second-pass Reducer here.
 		 */
@@ -200,22 +207,19 @@ public class CORStripes extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
-			Iterator<HashMapStringIntWritable> iter = stripes.iterator();
+			Iterator<HashMapStringIntWritable> iter = values.iterator();
 			String first_w = key.toString();
 			while (iter.hasNext()) {
 				SUM_STRIPES.plus(iter.next());
 			}
-
-            String u = key.toString();
-            int freqU = word_total_map.getOrDefault(u, 0);
-            if (freqU == 0) return;
 
 	        for (Entry<String, Integer> mapElement : SUM_STRIPES.entrySet()) { 
 	            String w = (String) mapElement.getKey(); 
 	            int value = (int) mapElement.getValue();
 				int freq_a = word_total_map.get(key);
 				int freq_b = word_total_map.get(w);
-	            PAIR.set(key, new Text(w));
+				if (freq_b == 0) continue;
+	            PAIR.set(key, w);
 	            COR.set(value / (float) (freq_a * freq_b));
 	            context.write(PAIR, COR);
 	        }

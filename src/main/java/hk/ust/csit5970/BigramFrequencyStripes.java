@@ -27,6 +27,9 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 import org.apache.log4j.Logger;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
 
 /**
  * Compute the bigram count using the "stripes" approach
