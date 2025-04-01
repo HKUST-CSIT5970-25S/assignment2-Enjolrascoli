@@ -207,12 +207,20 @@ public class CORStripes extends Configured implements Tool {
 			/*
 			 * TODO: Your implementation goes here.
 			 */
-			Iterator<MapWritable> iter = values.iterator();
-			String first_w = key.toString();
-			while (iter.hasNext()) {
-				SUM_STRIPES.plus(iter.next());
-			}
-
+            MapWritable sumStripe = new MapWritable();
+            for (MapWritable stripe : values) {
+                for (Map.Entry<Writable, Writable> entry : stripe.entrySet()) {
+                    Text v = (Text) entry.getKey();
+                    IntWritable count = (IntWritable) entry.getValue();
+                    IntWritable currentCount = (IntWritable) sumStripe.get(v);
+                    if (currentCount == null) {
+                        sumStripe.put(v, new IntWritable(count.get()));
+                    } else {
+                        currentCount.set(currentCount.get() + count.get());
+                    }
+                }
+            }
+			
 	        for (Entry<String, Integer> mapElement : SUM_STRIPES.entrySet()) { 
 	            String w = (String) mapElement.getKey(); 
 	            int value = (int) mapElement.getValue();
