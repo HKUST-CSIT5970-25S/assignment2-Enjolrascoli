@@ -95,7 +95,7 @@ public class CORStripes extends Configured implements Tool {
 	public static class CORStripesMapper2 extends Mapper<LongWritable, Text, Text, MapWritable> {
 
 		private static final Text KEY = new Text();
-		private static final HashMapStringIntWritable STRIPE = new HashMapStringIntWritable();
+		private static final MapWritable STRIPE = new MapWritable();
 		static IntWritable ONE = new IntWritable(1);
 
 		@Override
@@ -220,7 +220,7 @@ public class CORStripes extends Configured implements Tool {
                     }
                 }
             }
-			
+
 	        for (Entry<String, Integer> mapElement : SUM_STRIPES.entrySet()) { 
 	            String w = (String) mapElement.getKey(); 
 	            int value = (int) mapElement.getValue();
